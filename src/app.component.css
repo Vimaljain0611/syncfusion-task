@@ -1,7 +1,13 @@
 ::ng-deep #treegridcomp_gridcontrol_toolbarItems {
   display: none !important;
 }
+::ng-deep ejs-dialog{
+  top:92px !important;
+}
 
+#treegridcomp_gridcontrol{
+  opacity: .6;
+}
 /* _:-ms-fullscreen,
 :root .highcontrast .e-userimg.sf-icon-Male::before,
 _:-ms-fullscreen,
