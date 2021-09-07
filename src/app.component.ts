@@ -20,7 +20,12 @@ import {
   MenuEventArgs,
 } from "@syncfusion/ej2-navigations";
 import { ContextMenuComponent } from "@syncfusion/ej2-angular-navigations";
-import { EmitType, getInstance, getValue, isNullOrUndefined } from "@syncfusion/ej2-base";
+import {
+  EmitType,
+  getInstance,
+  getValue,
+  isNullOrUndefined,
+} from "@syncfusion/ej2-base";
 import {
   columnSelected,
   ContextMenuClickEventArgs,
@@ -31,10 +36,12 @@ import {
 } from "@syncfusion/ej2-grids";
 import { DialogComponent } from "@syncfusion/ej2-angular-popups";
 
+import { Selection, Column } from "@syncfusion/ej2-grids";
+
 @Component({
   selector: "app-root",
   templateUrl: "app.component.html",
-  styleUrls: ['app.component.css'],
+  styleUrls: ["app.component.css"],
   providers: [
     SortService,
     ResizeService,
@@ -46,7 +53,11 @@ import { DialogComponent } from "@syncfusion/ej2-angular-popups";
   ],
 })
 export class AppComponent implements OnInit {
-  @ViewChild('Dialog') public dialogObj: DialogComponent;
+  @ViewChild("Dialog") public dialogObj: DialogComponent;
+
+  @ViewChild("addColumn") public addColumnObj: DialogComponent;
+
+  @ViewChild("editColumn") public EditColumnObj: DialogComponent;
 
   public data: Object[] = [];
   public contextMenuItems: Object[];
@@ -56,11 +67,12 @@ export class AppComponent implements OnInit {
   public editSettings: Object;
   public toolbar: string[];
 
+  allowRowDragAndDrop: boolean = true;
+
   selectedColumnFieldName: string;
   frozenColumns: number;
   allowSorting: boolean = false;
   allowFiltering: boolean = false;
-  allowRowDragAndDrop: boolean = true;
   filterSettings: any = {
     type: "FilterBar",
     hierarchyMode: "Parent",
@@ -76,37 +88,45 @@ export class AppComponent implements OnInit {
   @ViewChild("contextmenu")
   public cmenu: ContextMenuComponent;
 
-
   // style dialog
-  public dialogAnimation: Object = { effect: 'None' };
+  public dialogAnimation: Object = { effect: "None" };
   public closeOnEscape: boolean = false;
-  public width: string = '335px';
+  public width: string = "335px";
   public visible: boolean = false;
   public multiple: boolean = false;
   public showCloseIcon: Boolean = true;
-  public formHeader: string = 'Success';
-  public contentData: string = 'Your details have been updated successfully, Thank you.';
-  public target: string = '#FormDialog';
+  public formHeader: string = "Success";
+  public contentData: string =
+    "Your details have been updated successfully, Thank you.";
+  public target: string = "#FormDialog";
   public isModal: boolean = true;
   public animationSettings: object = {
-    effect: 'Zoom'
+    effect: "Zoom",
   };
-  public uploadInput: string = '';
+  public uploadInput: string = "";
   public dlgBtnClick: EmitType<object> = () => {
     this.dialogObj.hide();
-  }
-  public dlgButtons: Object[] = [{ click: this.dlgBtnClick.bind(this), buttonModel: { content: 'Ok', isPrimary: true } }];
-  @ViewChild('formElement') element: any;
+    this.addColumnObj.hide();
+    this.EditColumnObj.hide();
+  };
+  public dlgButtons: Object[] = [
+    {
+      click: this.dlgBtnClick.bind(this),
+      buttonModel: { content: "Ok", isPrimary: true },
+    },
+  ];
+  @ViewChild("formElement") element: any;
 
   // column style fields
-  dataType: string = 'string';
+  editHeaderTextWrap: string;
+  dataType: string = "string";
   fontSize: number = 14;
-  headerFontColor: string = 'rgba(0,0,0,0.54)';
-  rowFontColor: string = '#000000';
-  headerBGColor: string = '#ffffff';
-  rowBGColor: string = '#ffffff';
-  alignment: string = 'left';
-  textWrap: string = 'normal';
+  headerFontColor: string = "rgba(0,0,0,0.54)";
+  rowFontColor: string = "#000000";
+  headerBGColor: string = "#ffffff";
+  rowBGColor: string = "#ffffff";
+  alignment: string = "left";
+  textWrap: string = "normal";
 
   ngOnInit(): void {
     this.data = sampleData;
@@ -200,9 +220,14 @@ export class AppComponent implements OnInit {
         ],
       },
       {
-        text: "Add/Del/Edit",
+        text: "Action",
         // target: ".e-headercontent",
         id: "add-del-edit-column",
+        items: [
+          { text: "Add column", id: "add-column" },
+          { text: "Edit column", id: "edit-column" },
+          { text: "Delete column", id: "del-column" },
+        ],
       },
 
       // For rows
@@ -258,17 +283,24 @@ export class AppComponent implements OnInit {
   closeDialogMenu(): void {
     if (this.dialogObj) {
       this.dialogObj.hide();
+      this.addColumnObj.hide();
+      this.EditColumnObj.hide();
     }
   }
 
   closeContextMenu(): void {
-    let contextmenuObj: ContextMenu = getInstance(document.getElementById("treegridcomp_gridcontrol_cmenu"), ContextMenu) as ContextMenu;
+    let contextmenuObj: ContextMenu = getInstance(
+      document.getElementById("treegridcomp_gridcontrol_cmenu"),
+      ContextMenu
+    ) as ContextMenu;
     contextmenuObj.close();
   }
 
   setCellAlignment(position: string): void {
-    const column = this.treeGridObj.getColumnByField(this.selectedColumnFieldName);
-    const style = document.createElement('style');
+    const column = this.treeGridObj.getColumnByField(
+      this.selectedColumnFieldName
+    );
+    const style = document.createElement("style");
     style.innerHTML = `.e-treegrid .${this.selectedColumnFieldName} .e-headercelldiv { 
       text-align: ${position};
       }
@@ -277,16 +309,23 @@ export class AppComponent implements OnInit {
         text-align: ${position};
     }
     `;
-    document.getElementsByTagName('head')[0].appendChild(style);
-    column.customAttributes = { class: 'customcss' }
-    column.type = 'string'
+    document.getElementsByTagName("head")[0].appendChild(style);
+    column.customAttributes = { class: "customcss" };
+    column.type = "string";
     this.treeGridObj.refreshColumns();
+  }
+
+  onSubmitAddColumnForm(addColumnForm): void {
+    this.closeDialogMenu();
+    this.addColumn(addColumnForm.value);
   }
 
   onSubmitStyleForm(): void {
     this.closeDialogMenu();
-    const column = this.treeGridObj.getColumnByField(this.selectedColumnFieldName);
-    const style = document.createElement('style');
+    const column = this.treeGridObj.getColumnByField(
+      this.selectedColumnFieldName
+    );
+    const style = document.createElement("style");
     style.innerHTML = `.e-treegrid .e-headercell.${this.selectedColumnFieldName} { 
             background-color: ${this.headerBGColor};
             font-size: ${this.fontSize}px;
@@ -304,12 +343,11 @@ export class AppComponent implements OnInit {
               color: ${this.rowFontColor};
           }
           `;
-    document.getElementsByTagName('head')[0].appendChild(style);
-    column.customAttributes = { class: this.selectedColumnFieldName }
+    document.getElementsByTagName("head")[0].appendChild(style);
+    column.customAttributes = { class: this.selectedColumnFieldName };
     column.type = this.dataType;
     this.treeGridObj.refreshColumns();
   }
-
 
   contextMenuClick(args?: ContextMenuClickEventArgs): void {
     let ele: Element = args.event.target as Element;
@@ -320,15 +358,15 @@ export class AppComponent implements OnInit {
       this.selectedColumnFieldName
     );
 
-    if (eleId === 'style') {
+    if (eleId === "style") {
       this.dataType = column.type;
       this.fontSize = 14;
-      this.headerFontColor = 'rgba(0,0,0,0.54)';
-      this.rowFontColor = '#000000';
-      this.headerBGColor = '#ffffff';
-      this.rowBGColor = '#ffffff';
-      this.alignment = 'left';
-      this.textWrap = 'normal';
+      this.headerFontColor = "rgba(0,0,0,0.54)";
+      this.rowFontColor = "#000000";
+      this.headerBGColor = "#ffffff";
+      this.rowBGColor = "#ffffff";
+      this.alignment = "left";
+      this.textWrap = "normal";
       this.dialogObj.show();
       this.closeContextMenu();
       return;
@@ -410,6 +448,18 @@ export class AppComponent implements OnInit {
           document.getElementById("treegridcomp_gridcontrol_delete").click();
         }
       }
+
+      case "add-del-edit-column": {
+        if (eleId === "add-column") {
+          this.addColumnObj.show();
+        } else if (eleId === "edit-column") {
+          this.EditColumnObj.show();
+          this.editHeaderTextWrap = column.headerText;
+        } else if (eleId === "del-column") {
+          column.visible = false;
+          this.treeGridObj.refreshColumns();
+        }
+      }
     }
 
     // if (elem.id === "freeze-on") {
@@ -417,6 +467,16 @@ export class AppComponent implements OnInit {
     // }
   }
 
+  onSubmitEditColumnForm(form) {
+    const column = this.treeGridObj.getColumnByField(
+      this.selectedColumnFieldName
+    );
+
+    this.treeGridObj.columns[column["index"]]["headerText"] =
+      form.value.editHeaderText;
+
+    this.treeGridObj.refreshColumns();
+  }
   setFilterSettings(): void {
     this.filterSettings = {
       type: "FilterBar",
@@ -445,11 +505,190 @@ export class AppComponent implements OnInit {
     // }
   }
 
+  addColumn(value) {
+    if (value.field && value.headerText) {
+      let c = <Column[]>[
+        {
+          field: value.field,
+          headerText: value.headerText,
+          width: 80,
+          textAlign: "Center",
+        },
+      ];
+      for (let i: number = 0; i < c.length; i++) {
+        (this.treeGridObj.columns as Column[]).push(c[i]);
+        this.treeGridObj.refreshColumns();
+      }
+    }
+  }
+
   freezeOffColumns(): void {
     this.frozenColumns = 0;
   }
 
-  contextMenuOpen1(arg?: any): void {
+  // contextMenuOpen1(arg?: any): void {
+  //   let uid: string;
+  //   let columnIndex: number;
+  //   let columnFieldName: string;
+  //   const classList = arg.rowInfo.target.className.split(" ");
+
+  //   if (classList[0] === "e-headercell") {
+  //     columnIndex = +arg.rowInfo.target.getAttribute("aria-colindex");
+  //     columnFieldName = this.treeGridObj.getColumns()[columnIndex].field;
+  //   } else if (classList[0] === "e-headercelldiv") {
+  //     uid = arg.rowInfo.target.getAttribute("e-mappinguid");
+  //     if (uid) {
+  //       columnFieldName = this.treeGridObj.getColumnByUid(uid)?.field;
+  //     }
+  //   } else if (classList[0] === "e-headertext") {
+  //     uid = arg.rowInfo.target.parentNode.getAttribute("e-mappinguid");
+  //     if (uid) {
+  //       columnFieldName = this.treeGridObj.getColumnByUid(uid)?.field;
+  //     }
+  //   }
+
+  //   if (columnFieldName) {
+  //     this.selectedColumnFieldName = columnFieldName;
+  //   }
+
+  //   let elem: Element = arg.event.target as Element;
+  //   let items: Array<HTMLElement> = [].slice.call(
+  //     document.querySelectorAll(".e-menu-item")
+  //   );
+  //   for (let i: number = 0; i < items.length; i++) {
+  //     items[i].setAttribute("style", "display: none;");
+  //   }
+  //   // if (elem.closest(".e-row")) {
+  //   // document
+  //   //   .querySelectorAll("li#multi-select")[0]
+  //   //   ?.setAttribute("style", "display: block;");
+  //   // document
+  //   //   .querySelectorAll("li#multi-select-on")[0]
+  //   //   ?.setAttribute("style", "display: block;");
+  //   // document
+  //   //   .querySelectorAll("li#multi-select-off")[0]
+  //   //   ?.setAttribute("style", "display: block;");
+
+  //   // document
+  //   //   .querySelectorAll("li#copy-cut")[0]
+  //   //   ?.setAttribute("style", "display: block;");
+  //   // document
+  //   //   .querySelectorAll("li#paste-as-sibling")[0]
+  //   //   ?.setAttribute("style", "display: block;");
+  //   // document
+  //   //   .querySelectorAll("li#paste-as-child")[0]
+  //   //   ?.setAttribute("style", "display: block;");
+
+  //   // document
+  //   //   .querySelectorAll("li#add-del-edit-row")[0]
+  //   //   ?.setAttribute("style", "display: block;");
+  //   // document
+  //   //   .querySelectorAll("li#add-row")[0]
+  //   //   ?.setAttribute("style", "display: block;");
+  //   // document
+  //   //   .querySelectorAll("li#edit-row")[0]
+  //   //   ?.setAttribute("style", "display: block;");
+  //   // document
+  //   //   .querySelectorAll("li#delete-row")[0]
+  //   //   ?.setAttribute("style", "display: block;");
+
+  //   // }
+  //   if (elem.closest(".e-row")) {
+  //     // column
+
+  //     // style
+  //     document
+  //       .querySelectorAll("li#style")[0]
+  //       ?.setAttribute("style", "display: block;");
+
+  //     // data type
+  //     document
+  //       .querySelectorAll("li#data-type")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //     document
+  //       .querySelectorAll("li#string")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //     document
+  //       .querySelectorAll("li#number")[0]
+  //       ?.setAttribute("style", "display: block;");
+
+  //     // font
+  //     document
+  //       .querySelectorAll("li#font")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //     document
+  //       .querySelectorAll("li#font-weight")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //     document
+  //       .querySelectorAll("li#font-size")[0]
+  //       ?.setAttribute("style", "display: block;");
+
+  //     // color
+  //     document
+  //       .querySelectorAll("li#color")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //     document
+  //       .querySelectorAll("li#blue")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //     document
+  //       .querySelectorAll("li#default")[0]
+  //       ?.setAttribute("style", "display: block;");
+
+  //     // alignment
+  //     document
+  //       .querySelectorAll("li#alignment")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //     document
+  //       .querySelectorAll("li#left")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //     document
+  //       .querySelectorAll("li#right")[0]
+  //       ?.setAttribute("style", "display: block;");
+
+  //     document
+  //       .querySelectorAll("li#text-wrap")[0]
+  //       ?.setAttribute("style", "display: block;");
+
+  //     // freeze
+  //     document
+  //       .querySelectorAll("li#freeze")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //     document
+  //       .querySelectorAll("li#freeze-on")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //     document
+  //       .querySelectorAll("li#freeze-off")[0]
+  //       ?.setAttribute("style", "display: block;");
+
+  //     // filter
+  //     document
+  //       .querySelectorAll("li#filter")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //     document
+  //       .querySelectorAll("li#filter-on")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //     document
+  //       .querySelectorAll("li#filter-off")[0]
+  //       ?.setAttribute("style", "display: block;");
+
+  //     // multi-sort
+  //     document
+  //       .querySelectorAll("li#multi-sort")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //     document
+  //       .querySelectorAll("li#multi-sort-on")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //     document
+  //       .querySelectorAll("li#multi-sort-off")[0]
+  //       ?.setAttribute("style", "display: block;");
+
+  //     document
+  //       .querySelectorAll("li#add-del-edit-column")[0]
+  //       ?.setAttribute("style", "display: block;");
+  //   }
+  // }
+
+  contextMenuOpen(arg?: any): void {
     let uid: string;
     let columnIndex: number;
     let columnFieldName: string;
@@ -481,11 +720,18 @@ export class AppComponent implements OnInit {
     for (let i: number = 0; i < items.length; i++) {
       items[i].setAttribute("style", "display: none;");
     }
-    // console.log(elem.id)
+    
+    const column = this.treeGridObj.getColumnByField(
+      this.selectedColumnFieldName
+    );
+
+    console.log(column)
+    console.log(elem)
     // if (elem.closest(".e-row")) {
-    // document
+    //document;
     //   .querySelectorAll("li#multi-select")[0]
     //   ?.setAttribute("style", "display: block;");
+
     // document
     //   .querySelectorAll("li#multi-select-on")[0]
     //   ?.setAttribute("style", "display: block;");
@@ -502,267 +748,122 @@ export class AppComponent implements OnInit {
     // document
     //   .querySelectorAll("li#paste-as-child")[0]
     //   ?.setAttribute("style", "display: block;");
-
     // document
     //   .querySelectorAll("li#add-del-edit-row")[0]
     //   ?.setAttribute("style", "display: block;");
-    // document
-    //   .querySelectorAll("li#add-row")[0]
-    //   ?.setAttribute("style", "display: block;");
-    // document
-    //   .querySelectorAll("li#edit-row")[0]
-    //   ?.setAttribute("style", "display: block;");
-    // document
-    //   .querySelectorAll("li#delete-row")[0]
-    //   ?.setAttribute("style", "display: block;");
 
-    // }  
-    if (elem.closest(".e-row")) {
-      // column
+    // } else {
+    //   // column
 
-      // style
-      document
-        .querySelectorAll("li#style")[0]
-        ?.setAttribute("style", "display: block;");
+    // style
+    document
+      .querySelectorAll("li#style")[0]
+      ?.setAttribute("style", "display: block;");
 
-      // data type
-      document
-        .querySelectorAll("li#data-type")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#string")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#number")[0]
-        ?.setAttribute("style", "display: block;");
+    // data type
+    document
+      .querySelectorAll("li#data-type")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#string")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#number")[0]
+      ?.setAttribute("style", "display: block;");
 
-      // font
-      document
-        .querySelectorAll("li#font")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#font-weight")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#font-size")[0]
-        ?.setAttribute("style", "display: block;");
+    // font
+    document
+      .querySelectorAll("li#font")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#font-weight")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#font-size")[0]
+      ?.setAttribute("style", "display: block;");
 
-      // color
-      document
-        .querySelectorAll("li#color")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#blue")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#default")[0]
-        ?.setAttribute("style", "display: block;");
+    // color
+    document
+      .querySelectorAll("li#color")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#blue")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#default")[0]
+      ?.setAttribute("style", "display: block;");
 
-      // alignment
-      document
-        .querySelectorAll("li#alignment")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#left")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#right")[0]
-        ?.setAttribute("style", "display: block;");
+    // alignment
+    document
+      .querySelectorAll("li#alignment")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#left")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#center")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#right")[0]
+      ?.setAttribute("style", "display: block;");
 
-      document
-        .querySelectorAll("li#text-wrap")[0]
-        ?.setAttribute("style", "display: block;");
+    // text-wrap
+    document
+      .querySelectorAll("li#text-wrap")[0]
+      ?.setAttribute("style", "display: block;");
 
-      // freeze
-      document
-        .querySelectorAll("li#freeze")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#freeze-on")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#freeze-off")[0]
-        ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#break")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#normal")[0]
+      ?.setAttribute("style", "display: block;");
 
-      // filter
-      document
-        .querySelectorAll("li#filter")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#filter-on")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#filter-off")[0]
-        ?.setAttribute("style", "display: block;");
+    // freeze
+    document
+      .querySelectorAll("li#freeze")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#freeze-on")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#freeze-off")[0]
+      ?.setAttribute("style", "display: block;");
 
-      // multi-sort
-      document
-        .querySelectorAll("li#multi-sort")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#multi-sort-on")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#multi-sort-off")[0]
-        ?.setAttribute("style", "display: block;");
+    // filter
+    document
+      .querySelectorAll("li#filter")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#filter-on")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#filter-off")[0]
+      ?.setAttribute("style", "display: block;");
 
-      document
-        .querySelectorAll("li#add-del-edit-column")[0]
-        ?.setAttribute("style", "display: block;");
-    }
-  }
+    // multi-sort
+    document
+      .querySelectorAll("li#multi-sort")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#multi-sort-on")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#multi-sort-off")[0]
+      ?.setAttribute("style", "display: block;");
 
-  contextMenuOpen(arg?: any): void {
-    let uid: string;
-    let columnIndex: number;
-    let columnFieldName: string;
-    const classList = arg.rowInfo.target.className.split(' ');
-
-    if (classList[0] === 'e-headercell') {
-      columnIndex = +arg.rowInfo.target.getAttribute("aria-colindex");
-      columnFieldName = this.treeGridObj.getColumns()[columnIndex].field;
-    } else if (classList[0] === 'e-headercelldiv') {
-      uid = arg.rowInfo.target.getAttribute("e-mappinguid");
-      if (uid) {
-        columnFieldName = this.treeGridObj.getColumnByUid(uid)?.field;
-      }
-    } else if (classList[0] === 'e-headertext') {
-      uid = arg.rowInfo.target.parentNode.getAttribute("e-mappinguid");
-      if (uid) {
-        columnFieldName = this.treeGridObj.getColumnByUid(uid)?.field;
-      }
-    }
-
-    if (columnFieldName) {
-      this.selectedColumnFieldName = columnFieldName;
-    }
-
-    let elem: Element = arg.event.target as Element;
-    let items: Array<HTMLElement> = [].slice.call(
-      document.querySelectorAll(".e-menu-item")
-    );
-    for (let i: number = 0; i < items.length; i++) {
-      items[i].setAttribute("style", "display: none;");
-    }
-    if (elem.closest(".e-row")) {
-      document
-        .querySelectorAll("li#multi-select")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#copy-cut")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#paste-as-sibling")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#paste-as-child")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#add-del-edit-row")[0]
-        ?.setAttribute("style", "display: block;");
-    } else {
-      // column
-
-      // style
-      document
-        .querySelectorAll("li#style")[0]
-        ?.setAttribute("style", "display: block;");
-
-      // data type
-      document
-        .querySelectorAll("li#data-type")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#string")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#number")[0]
-        ?.setAttribute("style", "display: block;");
-
-      // font
-      document
-        .querySelectorAll("li#font")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#font-weight")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#font-size")[0]
-        ?.setAttribute("style", "display: block;");
-
-      // color
-      document
-        .querySelectorAll("li#color")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#blue")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#default")[0]
-        ?.setAttribute("style", "display: block;");
-
-      // alignment
-      document
-        .querySelectorAll("li#alignment")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#left")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#center")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#right")[0]
-        ?.setAttribute("style", "display: block;");
-
-      // text-wrap
-      document
-        .querySelectorAll("li#text-wrap")[0]
-        ?.setAttribute("style", "display: block;");
-
-      document
-        .querySelectorAll("li#break")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#normal")[0]
-        ?.setAttribute("style", "display: block;");
-
-      // freeze
-      document
-        .querySelectorAll("li#freeze")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#freeze-on")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#freeze-off")[0]
-        ?.setAttribute("style", "display: block;");
-
-      // filter
-      document
-        .querySelectorAll("li#filter")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#filter-on")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#filter-off")[0]
-        ?.setAttribute("style", "display: block;");
-
-      // multi-sort
-      document
-        .querySelectorAll("li#multi-sort")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#multi-sort-on")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#multi-sort-off")[0]
-        ?.setAttribute("style", "display: block;");
-
-      document
-        .querySelectorAll("li#add-del-edit-column")[0]
-        ?.setAttribute("style", "display: block;");
-    }
+    document
+      .querySelectorAll("li#add-del-edit-column")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#add-column")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#edit-column")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#del-column")[0]
+      ?.setAttribute("style", "display: block;");
+    // }
   }
 }
