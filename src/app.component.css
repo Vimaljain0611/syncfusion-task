@@ -205,12 +205,49 @@ td.e-rowcell .statustxt.e-inactivecolor {
 
 .selection-input {
   display: flex;
-  flex-direction: column;
-  color: rgba(0, 0, 0, 0.54);
+  align-items: center;
+  flex-direction: row;
+  color: rgba(0, 0, 0);
 }
 
 .selection-input select {
   margin-top: 0.5rem;
   max-width: fit-content;
+  min-width: 10rem;
+
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#headerBGColor,
+#rowBGColor,
+#rowFontColor,
+#headerFontColor {
+  width: 100%;
+  border-bottom: none !important;
+  width: 6rem;
+  height: 2em;
+}
+
+#font-size {
+  /* max-width: 10rem; */
+}
+
+
+.e-float-input {
+  display: flex;
+  align-items: center;
+}
+
+label {
   min-width: 10rem;
 }
