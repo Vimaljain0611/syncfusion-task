@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
 import { sampleData } from "./data";
 import {
   SortService,
@@ -119,14 +119,22 @@ export class AppComponent implements OnInit {
 
   // column style fields
   editHeaderTextWrap: string;
-  dataType: string = "string";
-  fontSize: number = 14;
-  headerFontColor: string = "rgba(0,0,0,0.54)";
-  rowFontColor: string = "#000000";
-  headerBGColor: string = "#ffffff";
-  rowBGColor: string = "#ffffff";
-  alignment: string = "left";
-  textWrap: string = "normal";
+  dataType: string = 'string';
+  fontSize: number = 12;
+  headerFontColor: string = 'rgba(0,0,0,0.54)';
+  rowFontColor: string = '#000000';
+  headerBGColor: string = '#ffffff';
+  rowBGColor: string = '#ffffff';
+  alignment: string = 'left';
+  textWrap: boolean = false;
+
+  allowTextWrap: boolean = false;
+
+  ngAfterViewInit() {
+    // this.treeGridObj.allowTextWrap = true;
+    // this.treeGridObj.selectionSettings = { type: 'Multiple', mode: 'Row', cellSelectionMode: 'Flow' };
+    // this.treeGridObj.editSettings = { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch' };
+  }
 
   ngOnInit(): void {
     this.data = sampleData;
@@ -328,12 +336,13 @@ export class AppComponent implements OnInit {
     const style = document.createElement("style");
     style.innerHTML = `.e-treegrid .e-headercell.${this.selectedColumnFieldName} { 
             background-color: ${this.headerBGColor};
-            font-size: ${this.fontSize}px;
             color: ${this.headerFontColor};
             }
 
             .e-treegrid .${this.selectedColumnFieldName} .e-headercelldiv { 
               text-align: ${this.alignment} !important;
+              font-size: ${this.fontSize}px;
+              white-space: ${this.textWrap === (true || 'true') ? 'normal' : 'nowrap'} !important;
             }
 
             .e-treegrid .e-rowcell.${this.selectedColumnFieldName} {
@@ -341,12 +350,18 @@ export class AppComponent implements OnInit {
               font-size: ${this.fontSize}px;
               text-align: ${this.alignment} !important;
               color: ${this.rowFontColor};
-          }
+            }
+
+            .e-treegrid .e-rowcell.${this.selectedColumnFieldName} .e-treecell {
+              white-space: ${this.textWrap === (true || 'true') ? 'normal' : 'nowrap'} !important;
+            }
           `;
     document.getElementsByTagName("head")[0].appendChild(style);
     column.customAttributes = { class: this.selectedColumnFieldName };
     column.type = this.dataType;
+
     this.treeGridObj.refreshColumns();
+    // this.treeGridObj.allowTextWrap = true;
   }
 
   contextMenuClick(args?: ContextMenuClickEventArgs): void {
@@ -358,15 +373,35 @@ export class AppComponent implements OnInit {
       this.selectedColumnFieldName
     );
 
-    if (eleId === "style") {
+    const headercell: any = document.getElementsByClassName(`e-headercell ${this.selectedColumnFieldName}`);
+    const headercelldivParent: any = document.getElementsByClassName(`${this.selectedColumnFieldName}`);
+    const headercelldiv: any = headercelldivParent[0]?.getElementsByClassName('e-headercelldiv');
+    const rowcellParent: any = document?.getElementsByClassName(`e-rowcell ${this.selectedColumnFieldName}`);
+    const rowcell: any = rowcellParent[0]?.getElementsByClassName(`e-rowcell`);
+    const treecell: any = document.getElementsByClassName(`${this.selectedColumnFieldName} e-treecell`);
+
+    // if (headercell?.length) {
+    //   const headerBGColor = headercell[0].style?.backgroundColor;
+    //   const color = headercell[0].style?.backgroundColor;
+
+    //   console.log(headercell, headercell[0].style, headerBGColor, color)
+    // }
+
+
+    // if (headercelldiv?.length) {
+    //   const alignment = headercelldiv[0].style?.textAlign;
+    //   const fontSize = headercelldiv[0].style?.fontSize;
+    // }
+
+    if (eleId === 'style') {
       this.dataType = column.type;
-      this.fontSize = 14;
-      this.headerFontColor = "rgba(0,0,0,0.54)";
-      this.rowFontColor = "#000000";
-      this.headerBGColor = "#ffffff";
-      this.rowBGColor = "#ffffff";
-      this.alignment = "left";
-      this.textWrap = "normal";
+      this.fontSize = 12;
+      this.headerFontColor = 'rgba(0,0,0,0.54)';
+      this.rowFontColor = '#000000';
+      this.headerBGColor = '#ffffff';
+      this.rowBGColor = '#ffffff';
+      this.alignment = 'left';
+      this.textWrap = false;
       this.dialogObj.show();
       this.closeContextMenu();
       return;
@@ -720,7 +755,7 @@ export class AppComponent implements OnInit {
     for (let i: number = 0; i < items.length; i++) {
       items[i].setAttribute("style", "display: none;");
     }
-    
+
     const column = this.treeGridObj.getColumnByField(
       this.selectedColumnFieldName
     );

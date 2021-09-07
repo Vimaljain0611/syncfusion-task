@@ -22,6 +22,8 @@
     (contextMenuClick)="contextMenuClick($event)"
     (contextMenuOpen)="contextMenuOpen($event)"
     [selectionSettings]="selectOptions"
+    [allowTextWrap]="true"
+    [allowResizing]="true"
   >
     <!--(beforeOpen)="($event)"-->
     <e-columns>
@@ -284,16 +286,10 @@
             <div class="form-group" style="padding-top: 11px">
               <div class="selection-input">
                 <label class="" for="text-wrap">Text Wrap</label>
-                <select
-                  name="text-wrap"
-                  id="text-wrap"
-                  #textWrapVal="ngModel"
-                  name="text-wrap"
-                  required
-                  [(ngModel)]="textWrap"
-                >
-                  <option value="normal">Normal</option>
-                  <option value="break">Break</option>
+                <select name="text-wrap" id="text-wrap" #textWrapVal='ngModel' name="text-wrap" required
+                  [(ngModel)]="textWrap">
+                  <option [ngValue]="false">Normal</option>
+                  <option [ngValue]="true">Break</option>
                 </select>
               </div>
             </div>
