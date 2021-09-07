@@ -130,6 +130,10 @@ export class AppComponent implements OnInit {
 
   allowTextWrap: boolean = false;
 
+  isHeaderContextMneu: boolean = false;
+  isRowContextMneu: boolean = false;
+
+
   ngAfterViewInit() {
     // this.treeGridObj.allowTextWrap = true;
     // this.treeGridObj.selectionSettings = { type: 'Multiple', mode: 'Row', cellSelectionMode: 'Flow' };
@@ -258,7 +262,7 @@ export class AppComponent implements OnInit {
       },
       { text: "Paste as Child", id: "paste-as-child" },
       {
-        text: "Add/Del/Edit",
+        text: "Action",
         id: "add-del-edit-row",
         items: [
           { text: "Add Row", id: "add-row" },
@@ -383,8 +387,6 @@ export class AppComponent implements OnInit {
     // if (headercell?.length) {
     //   const headerBGColor = headercell[0].style?.backgroundColor;
     //   const color = headercell[0].style?.backgroundColor;
-
-    //   console.log(headercell, headercell[0].style, headerBGColor, color)
     // }
 
 
@@ -512,6 +514,7 @@ export class AppComponent implements OnInit {
 
     this.treeGridObj.refreshColumns();
   }
+
   setFilterSettings(): void {
     this.filterSettings = {
       type: "FilterBar",
@@ -760,143 +763,162 @@ export class AppComponent implements OnInit {
       this.selectedColumnFieldName
     );
 
-    // if (elem.closest(".e-row")) {
-    //document;
-    //   .querySelectorAll("li#multi-select")[0]
-    //   ?.setAttribute("style", "display: block;");
+    if (elem.closest(".e-row")) {
+      this.isRowContextMneu = true;
+      this.isHeaderContextMneu = false;
+    }
 
-    // document
-    //   .querySelectorAll("li#multi-select-on")[0]
-    //   ?.setAttribute("style", "display: block;");
-    // document
-    //   .querySelectorAll("li#multi-select-off")[0]
-    //   ?.setAttribute("style", "display: block;");
+    if (elem.closest(".e-headercell")) {
+      this.isHeaderContextMneu = true;
+      this.isRowContextMneu = false;
+    }
 
-    // document
-    //   .querySelectorAll("li#copy-cut")[0]
-    //   ?.setAttribute("style", "display: block;");
-    // document
-    //   .querySelectorAll("li#paste-as-sibling")[0]
-    //   ?.setAttribute("style", "display: block;");
-    // document
-    //   .querySelectorAll("li#paste-as-child")[0]
-    //   ?.setAttribute("style", "display: block;");
-    // document
-    //   .querySelectorAll("li#add-del-edit-row")[0]
-    //   ?.setAttribute("style", "display: block;");
+    if (this.isRowContextMneu) {
+      document
+        .querySelectorAll("li#multi-select")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#multi-select-on")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#multi-select-off")[0]
+        ?.setAttribute("style", "display: block;");
 
-    // } else {
-    //   // column
+      document
+        .querySelectorAll("li#copy-cut")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#paste-as-sibling")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#paste-as-child")[0]
+        ?.setAttribute("style", "display: block;");
 
-    // style
-    document
-      .querySelectorAll("li#style")[0]
-      ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#add-del-edit-row")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#add-row")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#edit-row")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#delete-row")[0]
+        ?.setAttribute("style", "display: block;");
+    }
 
-    // data type
-    document
-      .querySelectorAll("li#data-type")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#string")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#number")[0]
-      ?.setAttribute("style", "display: block;");
+    if (this.isHeaderContextMneu) {
+      // style
+      document
+        .querySelectorAll("li#style")[0]
+        ?.setAttribute("style", "display: block;");
 
-    // font
-    document
-      .querySelectorAll("li#font")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#font-weight")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#font-size")[0]
-      ?.setAttribute("style", "display: block;");
+      // data type
+      document
+        .querySelectorAll("li#data-type")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#string")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#number")[0]
+        ?.setAttribute("style", "display: block;");
 
-    // color
-    document
-      .querySelectorAll("li#color")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#blue")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#default")[0]
-      ?.setAttribute("style", "display: block;");
+      // font
+      document
+        .querySelectorAll("li#font")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#font-weight")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#font-size")[0]
+        ?.setAttribute("style", "display: block;");
 
-    // alignment
-    document
-      .querySelectorAll("li#alignment")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#left")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#center")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#right")[0]
-      ?.setAttribute("style", "display: block;");
+      // color
+      document
+        .querySelectorAll("li#color")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#blue")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#default")[0]
+        ?.setAttribute("style", "display: block;");
 
-    // text-wrap
-    document
-      .querySelectorAll("li#text-wrap")[0]
-      ?.setAttribute("style", "display: block;");
+      // alignment
+      document
+        .querySelectorAll("li#alignment")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#left")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#center")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#right")[0]
+        ?.setAttribute("style", "display: block;");
 
-    document
-      .querySelectorAll("li#break")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#normal")[0]
-      ?.setAttribute("style", "display: block;");
+      // text-wrap
+      document
+        .querySelectorAll("li#text-wrap")[0]
+        ?.setAttribute("style", "display: block;");
 
-    // freeze
-    document
-      .querySelectorAll("li#freeze")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#freeze-on")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#freeze-off")[0]
-      ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#break")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#normal")[0]
+        ?.setAttribute("style", "display: block;");
 
-    // filter
-    document
-      .querySelectorAll("li#filter")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#filter-on")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#filter-off")[0]
-      ?.setAttribute("style", "display: block;");
+      // freeze
+      document
+        .querySelectorAll("li#freeze")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#freeze-on")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#freeze-off")[0]
+        ?.setAttribute("style", "display: block;");
 
-    // multi-sort
-    document
-      .querySelectorAll("li#multi-sort")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#multi-sort-on")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#multi-sort-off")[0]
-      ?.setAttribute("style", "display: block;");
+      // filter
+      document
+        .querySelectorAll("li#filter")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#filter-on")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#filter-off")[0]
+        ?.setAttribute("style", "display: block;");
 
-    document
-      .querySelectorAll("li#add-del-edit-column")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#add-column")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#edit-column")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#del-column")[0]
-      ?.setAttribute("style", "display: block;");
-    // }
+      // multi-sort
+      document
+        .querySelectorAll("li#multi-sort")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#multi-sort-on")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#multi-sort-off")[0]
+        ?.setAttribute("style", "display: block;");
+
+      document
+        .querySelectorAll("li#add-del-edit-column")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#add-column")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#edit-column")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#del-column")[0]
+        ?.setAttribute("style", "display: block;");
+      // }
+    }
   }
 }
