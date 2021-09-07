@@ -725,8 +725,6 @@ export class AppComponent implements OnInit {
       this.selectedColumnFieldName
     );
 
-    console.log(column)
-    console.log(elem)
     // if (elem.closest(".e-row")) {
     //document;
     //   .querySelectorAll("li#multi-select")[0]
