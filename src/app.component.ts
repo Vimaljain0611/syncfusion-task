@@ -10,7 +10,7 @@ import {
   ContextMenuService,
   TreeGridComponent,
   ITreeData,
-  ToolbarService
+  ToolbarService,
 } from "@syncfusion/ej2-angular-treegrid";
 import { EditSettingsModel } from "@syncfusion/ej2-treegrid";
 import { BeforeOpenCloseEventArgs } from "@syncfusion/ej2-inputs";
@@ -29,12 +29,10 @@ import {
   RowDataBoundEventArgs,
 } from "@syncfusion/ej2-grids";
 
-
-
-
 @Component({
   selector: "app-root",
   templateUrl: "app.component.html",
+  styleUrls: ['app.component.css'],
   providers: [
     SortService,
     ResizeService,
@@ -53,7 +51,6 @@ export class AppComponent implements OnInit {
 
   public editSettings: Object;
   public toolbar: string[];
-
 
   selectedColumnFieldName: string;
   frozenColumns: number;
@@ -78,8 +75,13 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.data = sampleData;
 
-    this.editSettings = { allowAdding: true, allowEditing: true,  allowDeleting: true, mode: 'Dialog' };
-    this.toolbar = ['Add', 'Edit', 'Delete'];
+    this.editSettings = {
+      allowAdding: true,
+      allowEditing: true,
+      allowDeleting: true,
+      mode: "Dialog",
+    };
+    this.toolbar = ["Add", "Edit", "Delete"];
 
     this.contextMenuItems = [
       // For columns
@@ -185,10 +187,21 @@ export class AppComponent implements OnInit {
         target: ".e-content",
         id: "paste-as-sibling",
       },
-      { text: "Paste as Child", target: ".e-content", id: "paste-as-child" },
-      { text: "Add/Del/Edit", target: ".e-content", id: "add-del-edit-row" },
+      { text: "Paste as Child", id: "paste-as-child" },
+      {
+        text: "Add/Del/Edit",
+        id: "add-del-edit-row",
+        items: [
+          { text: "Add Row", id: "add-row" },
+          {
+            text: "Edit Row",
+            id: "edit-row",
+          },
+          { text: "Delete Row", id: "delete-row" },
+        ],
+      },
     ];
-    
+
     // this.editing = { allowDeleting: true, allowEditing: true, mode: "Row" };
     this.editparams = { params: { format: "n" } };
   }
@@ -208,7 +221,7 @@ export class AppComponent implements OnInit {
 
   contextMenuClick(args?: ContextMenuClickEventArgs): void {
     let ele: Element = args.event.target as Element;
-    
+
     let eleId: string = ele.id;
     let rowInfo: any = args.rowInfo;
     const column = this.treeGridObj.getColumnByField(
@@ -276,11 +289,21 @@ export class AppComponent implements OnInit {
           if (eleId === "multi-select-on") {
             this.selectOptions = { type: "Multiple" };
           } else if (eleId === "multi-select-off") {
-            console.log('off')
+            console.log("off");
             this.selectOptions = { type: "Single" };
           }
         }
         break;
+
+      case "add-del-edit-row": {
+        if (eleId === "add-row") {
+          document.getElementById("treegridcomp_gridcontrol_add").click();
+        } else if (eleId === "edit-row") {
+          document.getElementById("treegridcomp_gridcontrol_edit").click();
+        } else if (eleId === "delete-row") {
+          document.getElementById("treegridcomp_gridcontrol_delete").click();
+        }
+      }
     }
 
     // if (elem.id === "freeze-on") {
@@ -354,28 +377,39 @@ export class AppComponent implements OnInit {
     }
     // console.log(elem.id)
     // if (elem.closest(".e-row")) {
-      document
-        .querySelectorAll("li#multi-select")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#multi-select-on")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#multi-select-off")[0]
-        ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#multi-select")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#multi-select-on")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#multi-select-off")[0]
+      ?.setAttribute("style", "display: block;");
 
-      document
-        .querySelectorAll("li#copy-cut")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#paste-as-sibling")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#paste-as-child")[0]
-        ?.setAttribute("style", "display: block;");
-      document
-        .querySelectorAll("li#add-del-edit-row")[0]
-        ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#copy-cut")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#paste-as-sibling")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#paste-as-child")[0]
+      ?.setAttribute("style", "display: block;");
+
+    document
+      .querySelectorAll("li#add-del-edit-row")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#add-row")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#edit-row")[0]
+      ?.setAttribute("style", "display: block;");
+    document
+      .querySelectorAll("li#delete-row")[0]
+      ?.setAttribute("style", "display: block;");
+
     // }  if (elem.closest(".e-headercell")) {
     //   // column
 
