@@ -1,4 +1,4 @@
-::ng-deep #treegridcomp_gridcontrol_toolbarItems{
+::ng-deep #treegridcomp_gridcontrol_toolbarItems {
   display: none !important;
 }
 
@@ -197,4 +197,14 @@ td.e-rowcell .statustxt.e-inactivecolor {
   color: white;
 } */
 
+.selection-input {
+  display: flex;
+  flex-direction: column;
+  color: rgba(0, 0, 0, 0.54);
+}
 
+.selection-input select {
+  margin-top: 0.5rem;
+  max-width: fit-content;
+  min-width: 10rem;
+}

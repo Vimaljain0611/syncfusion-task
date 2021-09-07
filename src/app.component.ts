@@ -16,10 +16,11 @@ import { EditSettingsModel } from "@syncfusion/ej2-treegrid";
 import { BeforeOpenCloseEventArgs } from "@syncfusion/ej2-inputs";
 import {
   BeforeOpenCloseMenuEventArgs,
+  ContextMenu,
   MenuEventArgs,
 } from "@syncfusion/ej2-navigations";
 import { ContextMenuComponent } from "@syncfusion/ej2-angular-navigations";
-import { getValue, isNullOrUndefined } from "@syncfusion/ej2-base";
+import { EmitType, getInstance, getValue, isNullOrUndefined } from "@syncfusion/ej2-base";
 import {
   columnSelected,
   ContextMenuClickEventArgs,
@@ -28,6 +29,7 @@ import {
   QueryCellInfoEventArgs,
   RowDataBoundEventArgs,
 } from "@syncfusion/ej2-grids";
+import { DialogComponent } from "@syncfusion/ej2-angular-popups";
 
 @Component({
   selector: "app-root",
@@ -44,6 +46,8 @@ import {
   ],
 })
 export class AppComponent implements OnInit {
+  @ViewChild('Dialog') public dialogObj: DialogComponent;
+
   public data: Object[] = [];
   public contextMenuItems: Object[];
   // public editing: EditSettingsModel; [editSettings]="editing"
@@ -72,6 +76,38 @@ export class AppComponent implements OnInit {
   @ViewChild("contextmenu")
   public cmenu: ContextMenuComponent;
 
+
+  // style dialog
+  public dialogAnimation: Object = { effect: 'None' };
+  public closeOnEscape: boolean = false;
+  public width: string = '335px';
+  public visible: boolean = false;
+  public multiple: boolean = false;
+  public showCloseIcon: Boolean = true;
+  public formHeader: string = 'Success';
+  public contentData: string = 'Your details have been updated successfully, Thank you.';
+  public target: string = '#FormDialog';
+  public isModal: boolean = true;
+  public animationSettings: object = {
+    effect: 'Zoom'
+  };
+  public uploadInput: string = '';
+  public dlgBtnClick: EmitType<object> = () => {
+    this.dialogObj.hide();
+  }
+  public dlgButtons: Object[] = [{ click: this.dlgBtnClick.bind(this), buttonModel: { content: 'Ok', isPrimary: true } }];
+  @ViewChild('formElement') element: any;
+
+  // column style fields
+  dataType: string = 'string';
+  fontSize: number = 14;
+  headerFontColor: string = 'rgba(0,0,0,0.54)';
+  rowFontColor: string = '#000000';
+  headerBGColor: string = '#ffffff';
+  rowBGColor: string = '#ffffff';
+  alignment: string = 'left';
+  textWrap: string = 'normal';
+
   ngOnInit(): void {
     this.data = sampleData;
 
@@ -89,48 +125,48 @@ export class AppComponent implements OnInit {
         text: "Style",
         id: "style",
         //target: ".e-headercontent",
-        items: [
-          {
-            text: "Data Type",
-            id: "data-type",
-            items: [
-              { text: "String", id: "string" },
-              { text: "Number", id: "number" },
-            ],
-          },
-          {
-            text: "Font",
-            id: "font",
-            items: [
-              { text: "Font Weight", id: "font-weight" },
-              { text: "Font Size", id: "font-size" },
-            ],
-          },
-          {
-            text: "Color",
-            id: "color",
-            items: [
-              { text: "Blue", id: "blue" },
-              { text: "Default", id: "default" },
-            ],
-          },
-          {
-            text: "Alignment",
-            id: "alignment",
-            items: [
-              { text: "Left", id: "left" },
-              { text: "Right", id: "right" },
-            ],
-          },
-          {
-            text: "Text-wrap",
-            id: "text-wrap",
-            items: [
-              { text: "Break", id: "break" },
-              { text: "Normal", id: "normal" },
-            ],
-          },
-        ],
+        // items: [
+        //   {
+        //     text: "Data Type",
+        //     id: "data-type",
+        //     items: [
+        //       { text: "String", id: "string" },
+        //       { text: "Number", id: "number" },
+        //     ],
+        //   },
+        //   {
+        //     text: "Font",
+        //     id: "font",
+        //     items: [
+        //       { text: "Font Weight", id: "font-weight" },
+        //       { text: "Font Size", id: "font-size" },
+        //     ],
+        //   },
+        //   {
+        //     text: "Color",
+        //     id: "color",
+        //     items: [
+        //       { text: "Blue", id: "blue" },
+        //       { text: "Default", id: "default" },
+        //     ],
+        //   },
+        //   {
+        //     text: "Alignment",
+        //     id: "alignment",
+        //     items: [
+        //       { text: "Left", id: "left" },
+        //       { text: "Right", id: "right" },
+        //     ],
+        //   },
+        //   {
+        //     text: "Text-wrap",
+        //     id: "text-wrap",
+        //     items: [
+        //       { text: "Break", id: "break" },
+        //       { text: "Normal", id: "normal" },
+        //     ],
+        //   },
+        // ],
       },
       {
         text: "Freeze On/Off",
@@ -219,6 +255,62 @@ export class AppComponent implements OnInit {
   //   document.getElementsByTagName('head')[0].appendChild(style);
   // }
 
+  closeDialogMenu(): void {
+    if (this.dialogObj) {
+      this.dialogObj.hide();
+    }
+  }
+
+  closeContextMenu(): void {
+    let contextmenuObj: ContextMenu = getInstance(document.getElementById("treegridcomp_gridcontrol_cmenu"), ContextMenu) as ContextMenu;
+    contextmenuObj.close();
+  }
+
+  setCellAlignment(position: string): void {
+    const column = this.treeGridObj.getColumnByField(this.selectedColumnFieldName);
+    const style = document.createElement('style');
+    style.innerHTML = `.e-treegrid .${this.selectedColumnFieldName} .e-headercelldiv { 
+      text-align: ${position};
+      }
+
+      .e-treegrid .${this.selectedColumnFieldName} .e-treecolumn-container{
+        text-align: ${position};
+    }
+    `;
+    document.getElementsByTagName('head')[0].appendChild(style);
+    column.customAttributes = { class: 'customcss' }
+    column.type = 'string'
+    this.treeGridObj.refreshColumns();
+  }
+
+  onSubmitStyleForm(): void {
+    this.closeDialogMenu();
+    const column = this.treeGridObj.getColumnByField(this.selectedColumnFieldName);
+    const style = document.createElement('style');
+    style.innerHTML = `.e-treegrid .e-headercell.${this.selectedColumnFieldName} { 
+            background-color: ${this.headerBGColor};
+            font-size: ${this.fontSize}px;
+            color: ${this.headerFontColor};
+            }
+
+            .e-treegrid .${this.selectedColumnFieldName} .e-headercelldiv { 
+              text-align: ${this.alignment} !important;
+            }
+
+            .e-treegrid .e-rowcell.${this.selectedColumnFieldName} {
+              background-color: ${this.rowBGColor};
+              font-size: ${this.fontSize}px;
+              text-align: ${this.alignment} !important;
+              color: ${this.rowFontColor};
+          }
+          `;
+    document.getElementsByTagName('head')[0].appendChild(style);
+    column.customAttributes = { class: this.selectedColumnFieldName }
+    column.type = this.dataType;
+    this.treeGridObj.refreshColumns();
+  }
+
+
   contextMenuClick(args?: ContextMenuClickEventArgs): void {
     let ele: Element = args.event.target as Element;
 
@@ -227,6 +319,21 @@ export class AppComponent implements OnInit {
     const column = this.treeGridObj.getColumnByField(
       this.selectedColumnFieldName
     );
+
+    if (eleId === 'style') {
+      this.dataType = column.type;
+      this.fontSize = 14;
+      this.headerFontColor = 'rgba(0,0,0,0.54)';
+      this.rowFontColor = '#000000';
+      this.headerBGColor = '#ffffff';
+      this.rowBGColor = '#ffffff';
+      this.alignment = 'left';
+      this.textWrap = 'normal';
+      this.dialogObj.show();
+      this.closeContextMenu();
+      return;
+    }
+
     switch (rowInfo.target.id) {
       case "color":
         {
@@ -289,7 +396,6 @@ export class AppComponent implements OnInit {
           if (eleId === "multi-select-on") {
             this.selectOptions = { type: "Multiple" };
           } else if (eleId === "multi-select-off") {
-            console.log("off");
             this.selectOptions = { type: "Single" };
           }
         }
@@ -343,7 +449,7 @@ export class AppComponent implements OnInit {
     this.frozenColumns = 0;
   }
 
-  contextMenuOpen(arg?: any): void {
+  contextMenuOpen1(arg?: any): void {
     let uid: string;
     let columnIndex: number;
     let columnFieldName: string;
@@ -377,131 +483,286 @@ export class AppComponent implements OnInit {
     }
     // console.log(elem.id)
     // if (elem.closest(".e-row")) {
-    document
-      .querySelectorAll("li#multi-select")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#multi-select-on")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#multi-select-off")[0]
-      ?.setAttribute("style", "display: block;");
+    // document
+    //   .querySelectorAll("li#multi-select")[0]
+    //   ?.setAttribute("style", "display: block;");
+    // document
+    //   .querySelectorAll("li#multi-select-on")[0]
+    //   ?.setAttribute("style", "display: block;");
+    // document
+    //   .querySelectorAll("li#multi-select-off")[0]
+    //   ?.setAttribute("style", "display: block;");
 
-    document
-      .querySelectorAll("li#copy-cut")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#paste-as-sibling")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#paste-as-child")[0]
-      ?.setAttribute("style", "display: block;");
+    // document
+    //   .querySelectorAll("li#copy-cut")[0]
+    //   ?.setAttribute("style", "display: block;");
+    // document
+    //   .querySelectorAll("li#paste-as-sibling")[0]
+    //   ?.setAttribute("style", "display: block;");
+    // document
+    //   .querySelectorAll("li#paste-as-child")[0]
+    //   ?.setAttribute("style", "display: block;");
 
-    document
-      .querySelectorAll("li#add-del-edit-row")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#add-row")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#edit-row")[0]
-      ?.setAttribute("style", "display: block;");
-    document
-      .querySelectorAll("li#delete-row")[0]
-      ?.setAttribute("style", "display: block;");
+    // document
+    //   .querySelectorAll("li#add-del-edit-row")[0]
+    //   ?.setAttribute("style", "display: block;");
+    // document
+    //   .querySelectorAll("li#add-row")[0]
+    //   ?.setAttribute("style", "display: block;");
+    // document
+    //   .querySelectorAll("li#edit-row")[0]
+    //   ?.setAttribute("style", "display: block;");
+    // document
+    //   .querySelectorAll("li#delete-row")[0]
+    //   ?.setAttribute("style", "display: block;");
 
-    // }  if (elem.closest(".e-headercell")) {
-    //   // column
+    // }  
+    if (elem.closest(".e-row")) {
+      // column
 
-    //   // style
-    //   document
-    //     .querySelectorAll("li#style")[0]
-    //     ?.setAttribute("style", "display: block;");
+      // style
+      document
+        .querySelectorAll("li#style")[0]
+        ?.setAttribute("style", "display: block;");
 
-    //   // data type
-    //   document
-    //     .querySelectorAll("li#data-type")[0]
-    //     ?.setAttribute("style", "display: block;");
-    //   document
-    //     .querySelectorAll("li#string")[0]
-    //     ?.setAttribute("style", "display: block;");
-    //   document
-    //     .querySelectorAll("li#number")[0]
-    //     ?.setAttribute("style", "display: block;");
+      // data type
+      document
+        .querySelectorAll("li#data-type")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#string")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#number")[0]
+        ?.setAttribute("style", "display: block;");
 
-    //   // font
-    //   document
-    //     .querySelectorAll("li#font")[0]
-    //     ?.setAttribute("style", "display: block;");
-    //   document
-    //     .querySelectorAll("li#font-weight")[0]
-    //     ?.setAttribute("style", "display: block;");
-    //   document
-    //     .querySelectorAll("li#font-size")[0]
-    //     ?.setAttribute("style", "display: block;");
+      // font
+      document
+        .querySelectorAll("li#font")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#font-weight")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#font-size")[0]
+        ?.setAttribute("style", "display: block;");
 
-    //   // color
-    //   document
-    //     .querySelectorAll("li#color")[0]
-    //     ?.setAttribute("style", "display: block;");
-    //   document
-    //     .querySelectorAll("li#blue")[0]
-    //     ?.setAttribute("style", "display: block;");
-    //   document
-    //     .querySelectorAll("li#default")[0]
-    //     ?.setAttribute("style", "display: block;");
+      // color
+      document
+        .querySelectorAll("li#color")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#blue")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#default")[0]
+        ?.setAttribute("style", "display: block;");
 
-    //   // alignment
-    //   document
-    //     .querySelectorAll("li#alignment")[0]
-    //     ?.setAttribute("style", "display: block;");
-    //   document
-    //     .querySelectorAll("li#left")[0]
-    //     ?.setAttribute("style", "display: block;");
-    //   document
-    //     .querySelectorAll("li#right")[0]
-    //     ?.setAttribute("style", "display: block;");
+      // alignment
+      document
+        .querySelectorAll("li#alignment")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#left")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#right")[0]
+        ?.setAttribute("style", "display: block;");
 
-    //   document
-    //     .querySelectorAll("li#text-wrap")[0]
-    //     ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#text-wrap")[0]
+        ?.setAttribute("style", "display: block;");
 
-    //   // freeze
-    //   document
-    //     .querySelectorAll("li#freeze")[0]
-    //     ?.setAttribute("style", "display: block;");
-    //   document
-    //     .querySelectorAll("li#freeze-on")[0]
-    //     ?.setAttribute("style", "display: block;");
-    //   document
-    //     .querySelectorAll("li#freeze-off")[0]
-    //     ?.setAttribute("style", "display: block;");
+      // freeze
+      document
+        .querySelectorAll("li#freeze")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#freeze-on")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#freeze-off")[0]
+        ?.setAttribute("style", "display: block;");
 
-    //   // filter
-    //   document
-    //     .querySelectorAll("li#filter")[0]
-    //     ?.setAttribute("style", "display: block;");
-    //   document
-    //     .querySelectorAll("li#filter-on")[0]
-    //     ?.setAttribute("style", "display: block;");
-    //   document
-    //     .querySelectorAll("li#filter-off")[0]
-    //     ?.setAttribute("style", "display: block;");
+      // filter
+      document
+        .querySelectorAll("li#filter")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#filter-on")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#filter-off")[0]
+        ?.setAttribute("style", "display: block;");
 
-    //   // multi-sort
-    //   document
-    //     .querySelectorAll("li#multi-sort")[0]
-    //     ?.setAttribute("style", "display: block;");
-    //   document
-    //     .querySelectorAll("li#multi-sort-on")[0]
-    //     ?.setAttribute("style", "display: block;");
-    //   document
-    //     .querySelectorAll("li#multi-sort-off")[0]
-    //     ?.setAttribute("style", "display: block;");
+      // multi-sort
+      document
+        .querySelectorAll("li#multi-sort")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#multi-sort-on")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#multi-sort-off")[0]
+        ?.setAttribute("style", "display: block;");
 
-    //   document
-    //     .querySelectorAll("li#add-del-edit-column")[0]
-    //     ?.setAttribute("style", "display: block;");
-    // }
+      document
+        .querySelectorAll("li#add-del-edit-column")[0]
+        ?.setAttribute("style", "display: block;");
+    }
+  }
+
+  contextMenuOpen(arg?: any): void {
+    let uid: string;
+    let columnIndex: number;
+    let columnFieldName: string;
+    const classList = arg.rowInfo.target.className.split(' ');
+
+    if (classList[0] === 'e-headercell') {
+      columnIndex = +arg.rowInfo.target.getAttribute("aria-colindex");
+      columnFieldName = this.treeGridObj.getColumns()[columnIndex].field;
+    } else if (classList[0] === 'e-headercelldiv') {
+      uid = arg.rowInfo.target.getAttribute("e-mappinguid");
+      if (uid) {
+        columnFieldName = this.treeGridObj.getColumnByUid(uid)?.field;
+      }
+    } else if (classList[0] === 'e-headertext') {
+      uid = arg.rowInfo.target.parentNode.getAttribute("e-mappinguid");
+      if (uid) {
+        columnFieldName = this.treeGridObj.getColumnByUid(uid)?.field;
+      }
+    }
+
+    if (columnFieldName) {
+      this.selectedColumnFieldName = columnFieldName;
+    }
+
+    let elem: Element = arg.event.target as Element;
+    let items: Array<HTMLElement> = [].slice.call(
+      document.querySelectorAll(".e-menu-item")
+    );
+    for (let i: number = 0; i < items.length; i++) {
+      items[i].setAttribute("style", "display: none;");
+    }
+    if (elem.closest(".e-row")) {
+      document
+        .querySelectorAll("li#multi-select")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#copy-cut")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#paste-as-sibling")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#paste-as-child")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#add-del-edit-row")[0]
+        ?.setAttribute("style", "display: block;");
+    } else {
+      // column
+
+      // style
+      document
+        .querySelectorAll("li#style")[0]
+        ?.setAttribute("style", "display: block;");
+
+      // data type
+      document
+        .querySelectorAll("li#data-type")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#string")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#number")[0]
+        ?.setAttribute("style", "display: block;");
+
+      // font
+      document
+        .querySelectorAll("li#font")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#font-weight")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#font-size")[0]
+        ?.setAttribute("style", "display: block;");
+
+      // color
+      document
+        .querySelectorAll("li#color")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#blue")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#default")[0]
+        ?.setAttribute("style", "display: block;");
+
+      // alignment
+      document
+        .querySelectorAll("li#alignment")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#left")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#center")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#right")[0]
+        ?.setAttribute("style", "display: block;");
+
+      // text-wrap
+      document
+        .querySelectorAll("li#text-wrap")[0]
+        ?.setAttribute("style", "display: block;");
+
+      document
+        .querySelectorAll("li#break")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#normal")[0]
+        ?.setAttribute("style", "display: block;");
+
+      // freeze
+      document
+        .querySelectorAll("li#freeze")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#freeze-on")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#freeze-off")[0]
+        ?.setAttribute("style", "display: block;");
+
+      // filter
+      document
+        .querySelectorAll("li#filter")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#filter-on")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#filter-off")[0]
+        ?.setAttribute("style", "display: block;");
+
+      // multi-sort
+      document
+        .querySelectorAll("li#multi-sort")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#multi-sort-on")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#multi-sort-off")[0]
+        ?.setAttribute("style", "display: block;");
+
+      document
+        .querySelectorAll("li#add-del-edit-column")[0]
+        ?.setAttribute("style", "display: block;");
+    }
   }
 }
