@@ -9,34 +9,14 @@ import {
   PdfExportService,
   ContextMenuService,
   TreeGridComponent,
-  ITreeData,
-  ToolbarService,
 } from "@syncfusion/ej2-angular-treegrid";
-import { EditSettingsModel } from "@syncfusion/ej2-treegrid";
-import { BeforeOpenCloseEventArgs } from "@syncfusion/ej2-inputs";
-import {
-  BeforeOpenCloseMenuEventArgs,
-  ContextMenu,
-  MenuEventArgs,
-} from "@syncfusion/ej2-navigations";
+import { ContextMenu } from "@syncfusion/ej2-navigations";
 import { ContextMenuComponent } from "@syncfusion/ej2-angular-navigations";
-import {
-  EmitType,
-  getInstance,
-  getValue,
-  isNullOrUndefined,
-} from "@syncfusion/ej2-base";
-import {
-  columnSelected,
-  ContextMenuClickEventArgs,
-  ContextMenuOpenEventArgs,
-  FilterSettings,
-  QueryCellInfoEventArgs,
-  RowDataBoundEventArgs,
-} from "@syncfusion/ej2-grids";
+import { EmitType, getInstance } from "@syncfusion/ej2-base";
+import { ContextMenuClickEventArgs } from "@syncfusion/ej2-grids";
 import { DialogComponent } from "@syncfusion/ej2-angular-popups";
 
-import { Selection, Column } from "@syncfusion/ej2-grids";
+import { Column } from "@syncfusion/ej2-grids";
 
 @Component({
   selector: "app-root",
@@ -468,6 +448,7 @@ export class AppComponent implements OnInit {
   }
 
   onSubmitEditColumnForm(form) {
+    this.EditColumnObj.hide();
     const column = this.treeGridObj.getColumnByField(
       this.selectedColumnFieldName
     );
@@ -720,7 +701,7 @@ export class AppComponent implements OnInit {
     for (let i: number = 0; i < items.length; i++) {
       items[i].setAttribute("style", "display: none;");
     }
-    
+
     const column = this.treeGridObj.getColumnByField(
       this.selectedColumnFieldName
     );
