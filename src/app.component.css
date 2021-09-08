@@ -1,12 +1,20 @@
+:host {
+  height: 100%;
+}
+
+.treegrid-container {
+  height: 100%;
+}
+
 ::ng-deep #treegridcomp_gridcontrol_toolbarItems {
   display: none !important;
 }
-::ng-deep ejs-dialog{
-  top:92px !important;
+::ng-deep ejs-dialog {
+  top: 92px !important;
 }
 
-#treegridcomp_gridcontrol{
-  opacity: .6;
+#treegridcomp_gridcontrol {
+  opacity: 0.6;
 }
 /* _:-ms-fullscreen,
 :root .highcontrast .e-userimg.sf-icon-Male::before,
@@ -241,7 +249,6 @@ td.e-rowcell .statustxt.e-inactivecolor {
 #font-size {
   /* max-width: 10rem; */
 }
-
 
 .e-float-input {
   display: flex;

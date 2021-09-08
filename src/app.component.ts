@@ -9,12 +9,13 @@ import {
   PdfExportService,
   ContextMenuService,
   TreeGridComponent,
+  VirtualScrollService,
 } from "@syncfusion/ej2-angular-treegrid";
 import { ContextMenu } from "@syncfusion/ej2-navigations";
 import { ContextMenuComponent } from "@syncfusion/ej2-angular-navigations";
 import { EmitType, getInstance } from "@syncfusion/ej2-base";
 import { ContextMenuClickEventArgs } from "@syncfusion/ej2-grids";
-import { DialogComponent , ButtonPropsModel } from "@syncfusion/ej2-angular-popups";
+import { DialogComponent, ButtonPropsModel } from "@syncfusion/ej2-angular-popups";
 
 import { Column } from "@syncfusion/ej2-grids";
 
@@ -30,6 +31,7 @@ import { Column } from "@syncfusion/ej2-grids";
     ExcelExportService,
     PdfExportService,
     ContextMenuService,
+    VirtualScrollService
   ],
 })
 export class AppComponent implements OnInit {
@@ -52,6 +54,7 @@ export class AppComponent implements OnInit {
 
   allowRowDragAndDrop: boolean = true;
 
+  enableVirtualization: boolean = true;
   selectedColumnFieldName: string;
   frozenColumns: number;
   allowSorting: boolean = false;
@@ -122,7 +125,7 @@ export class AppComponent implements OnInit {
     {
       'click': this.deleteColumn.bind(this),
       // Accessing button component properties by buttonModel property
-        buttonModel:{
+      buttonModel: {
         content: 'OK',
         // Enables the primary button
         isPrimary: true
@@ -134,16 +137,52 @@ export class AppComponent implements OnInit {
         content: 'Cancel'
       }
     }
-      ];
+  ];
 
   ngAfterViewInit() {
+    // this.treeGridObj.autoFitColumns();
     // this.treeGridObj.allowTextWrap = true;
     // this.treeGridObj.selectionSettings = { type: 'Multiple', mode: 'Row', cellSelectionMode: 'Flow' };
     // this.treeGridObj.editSettings = { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch' };
   }
 
   ngOnInit(): void {
-    this.data = sampleData;
+    // this.data = sampleData;
+    let i = 1;
+    this.data = Array(1000).fill({}).map((arr) => {
+      return {
+        taskID: i++,
+        taskName: "Planning",
+        startDate: new Date("02/03/2017"),
+        endDate: new Date("02/07/2017"),
+        progress: 100,
+        duration: 5,
+        priority: "Normal",
+        approved: false,
+        subtasks: [
+          {
+            taskID: i++,
+            taskName: "Plan timeline",
+            startDate: new Date("02/03/2017"),
+            endDate: new Date("02/07/2017"),
+            duration: 5,
+            progress: 100,
+            priority: "Normal",
+            approved: false,
+          },
+          {
+            taskID: i++,
+            taskName: "Plan budget",
+            startDate: new Date("02/03/2017"),
+            endDate: new Date("02/07/2017"),
+            duration: 5,
+            progress: 100,
+            priority: "Low",
+            approved: true,
+          },
+        ],
+      }
+    })
 
     this.editSettings = {
       allowAdding: true,
@@ -256,7 +295,8 @@ export class AppComponent implements OnInit {
           },
         ],
       },
-      { text: "Copy & Cut", target: ".e-content", id: "copy-cut" },
+      { text: "Cut", target: ".e-content", id: "cut" },
+      { text: "Copy", target: ".e-content", id: "copy" },
       {
         text: "Paste as Sibling",
         target: ".e-content",
@@ -342,9 +382,8 @@ export class AppComponent implements OnInit {
       this.selectedColumnFieldName
     );
     const style = document.createElement("style");
-    style.innerHTML = `.e-treegrid .e-headercell.${
-      this.selectedColumnFieldName
-    } { 
+    style.innerHTML = `.e-treegrid .e-headercell.${this.selectedColumnFieldName
+      } { 
             background-color: ${this.headerBGColor};
             color: ${this.headerFontColor};
             }
@@ -352,9 +391,8 @@ export class AppComponent implements OnInit {
             .e-treegrid .${this.selectedColumnFieldName} .e-headercelldiv { 
               text-align: ${this.alignment} !important;
               font-size: ${this.fontSize}px;
-              white-space: ${
-                this.textWrap === (true || "true") ? "normal" : "nowrap"
-              } !important;
+              white-space: ${this.textWrap === (true || "true") ? "normal" : "nowrap"
+      } !important;
             }
 
             .e-treegrid .e-rowcell.${this.selectedColumnFieldName} {
@@ -365,9 +403,8 @@ export class AppComponent implements OnInit {
             }
 
             .e-treegrid .e-rowcell.${this.selectedColumnFieldName} .e-treecell {
-              white-space: ${
-                this.textWrap === (true || "true") ? "normal" : "nowrap"
-              } !important;
+              white-space: ${this.textWrap === (true || "true") ? "normal" : "nowrap"
+      } !important;
             }
           `;
     document.getElementsByTagName("head")[0].appendChild(style);
@@ -403,6 +440,8 @@ export class AppComponent implements OnInit {
       `${this.selectedColumnFieldName} e-treecell`
     );
 
+    // this.treeGridObj.refreshHeader();
+
     // if (headercell?.length) {
     //   const headerBGColor = headercell[0].style?.backgroundColor;
     //   const color = headercell[0].style?.backgroundColor;
@@ -427,6 +466,7 @@ export class AppComponent implements OnInit {
       return;
     }
 
+    this.enableVirtualization = true;
     switch (rowInfo.target.id) {
       case "color":
         {
@@ -457,8 +497,12 @@ export class AppComponent implements OnInit {
       case "freeze":
         {
           if (eleId === "freeze-on") {
+            this.enableVirtualization = false;
+            // this.treeGridObj.refreshColumns();
             this.freezeOnColumns(args);
+            this.treeGridObj.autoFitColumns();
           } else if (eleId === "freeze-off") {
+            this.enableVirtualization = true;
             this.freezeOffColumns();
           }
         }
@@ -478,8 +522,10 @@ export class AppComponent implements OnInit {
         {
           if (eleId === "multi-sort-on") {
             this.allowSorting = true;
+            // this.enableVirtualization = false;
           } else if (eleId === "multi-sort-off") {
             this.allowSorting = false;
+            // this.enableVirtualization = true;
           }
         }
         break;
@@ -487,9 +533,11 @@ export class AppComponent implements OnInit {
       case "multi-select":
         {
           if (eleId === "multi-select-on") {
+            this.enableVirtualization = false;
             this.selectOptions = { type: "Multiple" };
           } else if (eleId === "multi-select-off") {
             this.selectOptions = { type: "Single" };
+            this.enableVirtualization = false;
           }
         }
         break;
@@ -511,7 +559,7 @@ export class AppComponent implements OnInit {
           this.EditColumnObj.show();
           this.editHeaderTextWrap = column.headerText;
         } else if (eleId === "del-column") {
-         this.DeleteDialog.show();
+          this.DeleteDialog.show();
         }
       }
     }
@@ -521,8 +569,7 @@ export class AppComponent implements OnInit {
     // }
   }
 
-  deleteColumn()
-  {
+  deleteColumn() {
     const column = this.treeGridObj.getColumnByField(
       this.selectedColumnFieldName
     );
@@ -813,7 +860,10 @@ export class AppComponent implements OnInit {
         ?.setAttribute("style", "display: block;");
 
       document
-        .querySelectorAll("li#copy-cut")[0]
+        .querySelectorAll("li#cut")[0]
+        ?.setAttribute("style", "display: block;");
+      document
+        .querySelectorAll("li#copy")[0]
         ?.setAttribute("style", "display: block;");
       document
         .querySelectorAll("li#paste-as-sibling")[0]
