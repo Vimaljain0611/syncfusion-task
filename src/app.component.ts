@@ -14,7 +14,7 @@ import { ContextMenu } from "@syncfusion/ej2-navigations";
 import { ContextMenuComponent } from "@syncfusion/ej2-angular-navigations";
 import { EmitType, getInstance } from "@syncfusion/ej2-base";
 import { ContextMenuClickEventArgs } from "@syncfusion/ej2-grids";
-import { DialogComponent } from "@syncfusion/ej2-angular-popups";
+import { DialogComponent , ButtonPropsModel } from "@syncfusion/ej2-angular-popups";
 
 import { Column } from "@syncfusion/ej2-grids";
 
@@ -38,6 +38,9 @@ export class AppComponent implements OnInit {
   @ViewChild("addColumn") public addColumnObj: DialogComponent;
 
   @ViewChild("editColumn") public EditColumnObj: DialogComponent;
+
+  @ViewChild("deleteDialog") public DeleteDialog: DialogComponent;
+
 
   public data: Object[] = [];
   public contextMenuItems: Object[];
@@ -84,6 +87,7 @@ export class AppComponent implements OnInit {
     effect: "Zoom",
   };
   public uploadInput: string = "";
+  public dialogWidth = '330px';
   public dlgBtnClick: EmitType<object> = () => {
     this.dialogObj.hide();
     this.addColumnObj.hide();
@@ -99,20 +103,38 @@ export class AppComponent implements OnInit {
 
   // column style fields
   editHeaderTextWrap: string;
-  dataType: string = 'string';
+  dataType: string = "string";
   fontSize: number = 12;
-  headerFontColor: string = 'rgba(0,0,0,0.54)';
-  rowFontColor: string = '#000000';
-  headerBGColor: string = '#ffffff';
-  rowBGColor: string = '#ffffff';
-  alignment: string = 'left';
+  headerFontColor: string = "rgba(0,0,0,0.54)";
+  rowFontColor: string = "#000000";
+  headerBGColor: string = "#ffffff";
+  rowBGColor: string = "#ffffff";
+  alignment: string = "left";
   textWrap: boolean = false;
 
   allowTextWrap: boolean = false;
 
   isHeaderContextMneu: boolean = false;
   isRowContextMneu: boolean = false;
+  public deleteDiaContentData = "Are you sure you want delete?";
 
+  public buttons: Object = [
+    {
+      'click': this.deleteColumn.bind(this),
+      // Accessing button component properties by buttonModel property
+        buttonModel:{
+        content: 'OK',
+        // Enables the primary button
+        isPrimary: true
+      }
+    },
+    {
+      'click': this.closeDialogMenu.bind(this),
+      buttonModel: {
+        content: 'Cancel'
+      }
+    }
+      ];
 
   ngAfterViewInit() {
     // this.treeGridObj.allowTextWrap = true;
@@ -259,6 +281,7 @@ export class AppComponent implements OnInit {
     this.editparams = { params: { format: "n" } };
   }
 
+
   // createCustomStyles(styles: string): void {
   //   const style = document.createElement('style');
   //   style.innerHTML = `.e-treegrid .e-headercell.customcss {
@@ -277,6 +300,7 @@ export class AppComponent implements OnInit {
       this.dialogObj.hide();
       this.addColumnObj.hide();
       this.EditColumnObj.hide();
+      this.DeleteDialog.hide();
     }
   }
 
@@ -318,7 +342,9 @@ export class AppComponent implements OnInit {
       this.selectedColumnFieldName
     );
     const style = document.createElement("style");
-    style.innerHTML = `.e-treegrid .e-headercell.${this.selectedColumnFieldName} { 
+    style.innerHTML = `.e-treegrid .e-headercell.${
+      this.selectedColumnFieldName
+    } { 
             background-color: ${this.headerBGColor};
             color: ${this.headerFontColor};
             }
@@ -326,7 +352,9 @@ export class AppComponent implements OnInit {
             .e-treegrid .${this.selectedColumnFieldName} .e-headercelldiv { 
               text-align: ${this.alignment} !important;
               font-size: ${this.fontSize}px;
-              white-space: ${this.textWrap === (true || 'true') ? 'normal' : 'nowrap'} !important;
+              white-space: ${
+                this.textWrap === (true || "true") ? "normal" : "nowrap"
+              } !important;
             }
 
             .e-treegrid .e-rowcell.${this.selectedColumnFieldName} {
@@ -337,7 +365,9 @@ export class AppComponent implements OnInit {
             }
 
             .e-treegrid .e-rowcell.${this.selectedColumnFieldName} .e-treecell {
-              white-space: ${this.textWrap === (true || 'true') ? 'normal' : 'nowrap'} !important;
+              white-space: ${
+                this.textWrap === (true || "true") ? "normal" : "nowrap"
+              } !important;
             }
           `;
     document.getElementsByTagName("head")[0].appendChild(style);
@@ -357,32 +387,40 @@ export class AppComponent implements OnInit {
       this.selectedColumnFieldName
     );
 
-    const headercell: any = document.getElementsByClassName(`e-headercell ${this.selectedColumnFieldName}`);
-    const headercelldivParent: any = document.getElementsByClassName(`${this.selectedColumnFieldName}`);
-    const headercelldiv: any = headercelldivParent[0]?.getElementsByClassName('e-headercelldiv');
-    const rowcellParent: any = document?.getElementsByClassName(`e-rowcell ${this.selectedColumnFieldName}`);
+    const headercell: any = document.getElementsByClassName(
+      `e-headercell ${this.selectedColumnFieldName}`
+    );
+    const headercelldivParent: any = document.getElementsByClassName(
+      `${this.selectedColumnFieldName}`
+    );
+    const headercelldiv: any =
+      headercelldivParent[0]?.getElementsByClassName("e-headercelldiv");
+    const rowcellParent: any = document?.getElementsByClassName(
+      `e-rowcell ${this.selectedColumnFieldName}`
+    );
     const rowcell: any = rowcellParent[0]?.getElementsByClassName(`e-rowcell`);
-    const treecell: any = document.getElementsByClassName(`${this.selectedColumnFieldName} e-treecell`);
+    const treecell: any = document.getElementsByClassName(
+      `${this.selectedColumnFieldName} e-treecell`
+    );
 
     // if (headercell?.length) {
     //   const headerBGColor = headercell[0].style?.backgroundColor;
     //   const color = headercell[0].style?.backgroundColor;
     // }
 
-
     // if (headercelldiv?.length) {
     //   const alignment = headercelldiv[0].style?.textAlign;
     //   const fontSize = headercelldiv[0].style?.fontSize;
     // }
 
-    if (eleId === 'style') {
+    if (eleId === "style") {
       this.dataType = column.type;
       this.fontSize = 12;
-      this.headerFontColor = 'rgba(0,0,0,0.54)';
-      this.rowFontColor = '#000000';
-      this.headerBGColor = '#ffffff';
-      this.rowBGColor = '#ffffff';
-      this.alignment = 'left';
+      this.headerFontColor = "rgba(0,0,0,0.54)";
+      this.rowFontColor = "#000000";
+      this.headerBGColor = "#ffffff";
+      this.rowBGColor = "#ffffff";
+      this.alignment = "left";
       this.textWrap = false;
       this.dialogObj.show();
       this.closeContextMenu();
@@ -473,8 +511,7 @@ export class AppComponent implements OnInit {
           this.EditColumnObj.show();
           this.editHeaderTextWrap = column.headerText;
         } else if (eleId === "del-column") {
-          column.visible = false;
-          this.treeGridObj.refreshColumns();
+         this.DeleteDialog.show();
         }
       }
     }
@@ -482,6 +519,16 @@ export class AppComponent implements OnInit {
     // if (elem.id === "freeze-on") {
     //   this.freezeOnColumns(args);
     // }
+  }
+
+  deleteColumn()
+  {
+    const column = this.treeGridObj.getColumnByField(
+      this.selectedColumnFieldName
+    );
+    column.visible = false;
+    this.treeGridObj.refreshColumns();
+    this.DeleteDialog.hide();
   }
 
   onSubmitEditColumnForm(form) {
