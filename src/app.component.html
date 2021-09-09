@@ -44,15 +44,15 @@
       <div class="form-group" style="padding-top: 11px">
         <div class="e-float-input">
           <input type="number" id="font-size" #fontSizeVal="ngModel" name="font-size" required [(ngModel)]="fontSize" />
-          <span class="e-float-line"></span>
+          <!-- <span class="e-float-line"></span> -->
           <label class="e-float-text e-label-top" for="font-size">Font Size</label>
-          <div *ngIf="
+          <!-- <div *ngIf="
               fontSizeVal.invalid && (fontSizeVal.dirty || fontSizeVal.touched)
             ">
             <div class="e-error" *ngIf="fontSizeVal.errors.required">
               * Enter font size
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
 
