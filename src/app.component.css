@@ -2,6 +2,10 @@
   height: 100%;
 }
 
+::ng-deep .e-active {
+  background: #e0e0e0 !important;
+}
+
 ::ng-deep .e-table {
   width: 100% !important;
 }
