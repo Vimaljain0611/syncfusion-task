@@ -424,21 +424,21 @@ export class AppComponent implements OnInit {
       this.selectedColumnFieldName
     );
 
-    const headercell: any = document.getElementsByClassName(
-      `e-headercell ${this.selectedColumnFieldName}`
-    );
-    const headercelldivParent: any = document.getElementsByClassName(
-      `${this.selectedColumnFieldName}`
-    );
-    const headercelldiv: any =
-      headercelldivParent[0]?.getElementsByClassName("e-headercelldiv");
-    const rowcellParent: any = document?.getElementsByClassName(
-      `e-rowcell ${this.selectedColumnFieldName}`
-    );
-    const rowcell: any = rowcellParent[0]?.getElementsByClassName(`e-rowcell`);
-    const treecell: any = document.getElementsByClassName(
-      `${this.selectedColumnFieldName} e-treecell`
-    );
+    // const headercell: any = document.getElementsByClassName(
+    //   `e-headercell ${this.selectedColumnFieldName}`
+    // );
+    // const headercelldivParent: any = document.getElementsByClassName(
+    //   `${this.selectedColumnFieldName}`
+    // );
+    // const headercelldiv: any =
+    //   headercelldivParent[0]?.getElementsByClassName("e-headercelldiv");
+    // const rowcellParent: any = document?.getElementsByClassName(
+    //   `e-rowcell ${this.selectedColumnFieldName}`
+    // );
+    // const rowcell: any = rowcellParent[0]?.getElementsByClassName(`e-rowcell`);
+    // const treecell: any = document.getElementsByClassName(
+    //   `${this.selectedColumnFieldName} e-treecell`
+    // );
 
     // this.treeGridObj.refreshHeader();
 
@@ -466,7 +466,10 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    this.enableVirtualization = true;
+    if (this.frozenColumns === 0 || undefined || null) {
+      this.enableVirtualization = true;
+    }
+
     switch (rowInfo.target.id) {
       case "color":
         {
@@ -498,9 +501,9 @@ export class AppComponent implements OnInit {
         {
           if (eleId === "freeze-on") {
             this.enableVirtualization = false;
-            // this.treeGridObj.refreshColumns();
-            this.freezeOnColumns(args);
-            this.treeGridObj.autoFitColumns();
+            setTimeout(() => {
+              this.freezeOnColumns(args);
+            }, 100);
           } else if (eleId === "freeze-off") {
             this.enableVirtualization = true;
             this.freezeOffColumns();
@@ -533,11 +536,9 @@ export class AppComponent implements OnInit {
       case "multi-select":
         {
           if (eleId === "multi-select-on") {
-            this.enableVirtualization = false;
             this.selectOptions = { type: "Multiple" };
           } else if (eleId === "multi-select-off") {
             this.selectOptions = { type: "Single" };
-            this.enableVirtualization = false;
           }
         }
         break;
@@ -551,6 +552,7 @@ export class AppComponent implements OnInit {
           document.getElementById("treegridcomp_gridcontrol_delete").click();
         }
       }
+        break;
 
       case "add-del-edit-column": {
         if (eleId === "add-column") {
@@ -562,6 +564,7 @@ export class AppComponent implements OnInit {
           this.DeleteDialog.show();
         }
       }
+        break;
     }
 
     // if (elem.id === "freeze-on") {
@@ -802,6 +805,10 @@ export class AppComponent implements OnInit {
   // }
 
   contextMenuOpen(arg?: any): void {
+    if (this.frozenColumns === 0 || undefined || null) {
+      this.enableVirtualization = true;
+    }
+
     let uid: string;
     let columnIndex: number;
     let columnFieldName: string;

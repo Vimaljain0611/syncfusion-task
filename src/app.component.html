@@ -1,6 +1,6 @@
 <div class="treegrid-container">
-  <ejs-treegrid #treegrid [enableVirtualization]="enableVirtualization" [dataSource]="data" childMapping="subtasks" height="100%" [treeColumnIndex]="1"
-    allowReordering="true" id="treegridcomp" allowExcelExport="true" allowPdfExport="true" allowSorting="true"
+  <ejs-treegrid #treegrid [enableVirtualization]="enableVirtualization" [dataSource]="data" childMapping="subtasks"
+    width="100%" height="100%" [treeColumnIndex]="1" allowReordering="true" id="treegridcomp" allowSorting="true"
     [frozenColumns]="frozenColumns" [contextMenuItems]="contextMenuItems" [allowSorting]="allowSorting"
     [allowFiltering]="allowFiltering" [filterSettings]="filterSettings" is-responsive="true"
     [allowRowDragAndDrop]="allowRowDragAndDrop" [toolbar]="toolbar" [editSettings]="editSettings"
@@ -9,7 +9,7 @@
     <!--(beforeOpen)="($event)"-->
     <e-columns>
       <e-column field="taskID" headerText="Task ID" isPrimaryKey="true" width="80" [edit]="editparams" textAlign="Right"
-        editType="numericedit" ></e-column>
+        editType="numericedit"></e-column>
       <e-column field="taskName" headerText="Task Name" width="190"> </e-column>
       <e-column field="startDate" headerText="Start Date" width="90" format="yMd" textAlign="Right"
         editType="datepickeredit"></e-column>
